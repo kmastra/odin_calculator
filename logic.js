@@ -3,6 +3,7 @@ const numberButtons = document.querySelectorAll(".number");
 const operatorButtons = document.querySelectorAll(".operator");
 const run = document.querySelector("#run");
 const clear = document.querySelector("#clear");
+const backspace = document.querySelector("#backspace");
 
 let x = { value: "" };
 let y = { value: "" };
@@ -20,11 +21,14 @@ numberButtons.forEach((button) => {
 
 operatorButtons.forEach((button) => {
     button.addEventListener("click", () => {
-        if (x.value !== ""){
+        if (x.value !== "" && y.value === "") {
             operation = button.textContent;
             cursor = y;  
             refreshScreen();
-        }
+        };
+        if (x.value !== "" && y.value !== "") {
+            call();
+        };
     });
 });
 
@@ -35,11 +39,24 @@ clear.addEventListener("click", () => {
 
 
 run.addEventListener("click", () => {
-    if (x.value !== "" && y.value !== "") {
-        result = operate(parseInt(x.value), parseInt(y.value), operation);
-        screen.textContent = result;
-        clearAll(true);
-        x.value = result;
+    call();
+});
+
+
+backspace.addEventListener("click", () => {
+    if (cursor === x || cursor === y && y.value !== "") {
+        cursor.value = cursor.value.slice(0, -1);
+        refreshScreen();
+    };
+    if (cursor === y && operation === null) {
+        cursor = x;
+        cursor.value = cursor.value.slice(0, -1);
+        refreshScreen();
+    };
+    if (cursor === y && y.value === "" && operation !== null) {
+        operation = null;
+        cursor = x;
+        refreshScreen();
     };
 });
 
@@ -54,6 +71,16 @@ function operate(x, z, operation) {
             return multiply(x, z);
         case "/":
             return divide(x, z);
+    };
+};
+
+
+function call() {
+    if (x.value !== "" && y.value !== "") {
+        let result = operate(parseInt(x.value), parseInt(y.value), operation);
+        screen.textContent = result;
+        clearAll(true);
+        x.value = result;
     };
 };
 
@@ -81,20 +108,27 @@ function refreshScreen() {
 
 
 const add = function(x, z) {
-	return x + z;
+    let result = x + z;
+	return Number.isInteger(result) ? result : result.toFixed(3);
 };
 
 
 const subtract = function(x, z) {
-	return x - z;
+    let result = x - z;
+	return Number.isInteger(result) ? result : result.toFixed(3);
 };
 
 
 const multiply = function(x, z) {
-	return x * z;
+    let result = x * z;
+	return Number.isInteger(result) ? result : result.toFixed(3);
 };
 
 
 const divide = function(x, z) {
-	return x / z;
+    if (z === 0) {
+        return "yo ERROR";
+    }
+	let result = x / z;
+	return Number.isInteger(result) ? result : result.toFixed(3);
 };
